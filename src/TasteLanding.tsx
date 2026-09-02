@@ -33,37 +33,33 @@ const practiceSteps = [
 function ProductWalkthrough() {
     const scope = useRef<HTMLElement>(null);
     const [active, setActive] = useState(0);
+    const stageTriggers = useRef<ScrollTrigger[]>([]);
     useGSAP(() => {
-        const media = gsap.matchMedia();
-        const panels = gsap.utils.toArray<HTMLElement>('.t-walk-copy', scope.current);
-        panels.forEach((panel, index) => {
-            ScrollTrigger.create({ trigger: panel, start: 'top 48%', end: 'bottom 48%', onEnter: () => setActive(index), onEnterBack: () => setActive(index) });
-        });
-        media.add('(prefers-reduced-motion: no-preference)', () => {
-            gsap.fromTo('.t-journey-fill', { scaleX: 0 }, { scaleX: 1, ease: 'none', scrollTrigger: { trigger: '.t-walk-text', start: 'top center', end: 'bottom center', scrub: 0.35 } });
-            panels.forEach(panel => {
-                gsap.from(panel.querySelectorAll('.t-walk-enter'), { y: 22, opacity: 0, duration: 0.65, stagger: 0.1, ease: 'power3.out', scrollTrigger: { trigger: panel, start: 'top 78%', toggleActions: 'play none none reverse' } });
-            });
-        });
-        return () => media.revert();
+        const panels = gsap.utils.toArray<HTMLElement>('.t-walk-copy');
+        const sticky = scope.current?.querySelector<HTMLElement>('.t-walk-sticky');
+        const images = scope.current?.querySelector<HTMLElement>('.t-walk-images');
+        const triggers = panels.map((panel, index) => ScrollTrigger.create({
+            trigger: index === 2 ? panel.parentElement : panel.querySelector('.t-eyebrow'),
+            start: () => {
+                if (!sticky || !images || getComputedStyle(sticky).display === 'none') return 'top 35%';
+                // Switch only when the stage label reaches the phone's top edge.
+                const imageOffset = images.getBoundingClientRect().top - sticky.getBoundingClientRect().top;
+                const phoneTop = parseFloat(getComputedStyle(sticky).top) + imageOffset;
+                scope.current?.style.setProperty('--walk-final-top', `${phoneTop - 60}px`);
+                return `top ${index === 2 ? phoneTop - 60 : phoneTop}px`;
+            },
+            end: 'bottom top',
+            onEnter: () => setActive(index),
+            onLeaveBack: () => setActive(Math.max(0, index - 1)),
+        }));
+        stageTriggers.current = triggers;
+        return () => { stageTriggers.current = []; };
     }, { scope });
-    useGSAP(() => {
-        const media = gsap.matchMedia();
-        media.add('(prefers-reduced-motion: no-preference)', () => {
-            const images = gsap.utils.toArray<HTMLElement>('.t-walk-images img');
-            images.forEach((image, index) => {
-                if (index === active) gsap.fromTo(image, { autoAlpha: 0, y: 20, scale: 0.985 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: 'power3.out' });
-                else gsap.set(image, { autoAlpha: 0 });
-            });
-        });
-        return () => media.revert();
-    }, { scope, dependencies: [active], revertOnUpdate: true });
     function jumpTo(index: number) {
-        const panel = scope.current?.querySelector<HTMLElement>(`#practice-${index}`);
-        if (!panel) return;
+        const trigger = stageTriggers.current[index];
+        if (!trigger) return;
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const top = panel.getBoundingClientRect().top + window.scrollY - 120;
-        window.scrollTo({ top, behavior: reduced ? 'instant' : 'smooth' });
+        window.scrollTo({ top: trigger.start + 1, behavior: reduced ? 'instant' : 'smooth' });
     }
     return <section ref={scope} id="features" className="t-product-story t-wrap">
       <div className="t-story-heading t-reveal"><h2>You’re a great driver.<br />Now be a great coach.</h2><p className="t-intro">Explore the Pruvia practice workflow.</p></div>
@@ -71,17 +67,17 @@ function ProductWalkthrough() {
         <div className="t-journey-track" aria-hidden="true"><span className="t-journey-fill"/></div>
         {['Before', 'During', 'After'].map((label, index) => <button key={label} type="button" aria-controls={`practice-${index}`} aria-current={active === index ? 'step' : undefined} onClick={() => jumpTo(index)}><span className="t-journey-dot">{index < active ? <Check size={14}/> : `0${index + 1}`}</span><span>{label}</span><ArrowRight size={16}/></button>)}
       </nav>
-      <div className="t-walk-layout">
-        <div className="t-walk-text">{practiceSteps.map((step, index) => <article id={`practice-${index}`} className="t-walk-copy" key={step.label}>
+      <div className="t-walk-runway"><div className="t-walk-layout">
+        <div className="t-walk-text">{practiceSteps.map((step, index) => <div className="t-walk-stage" key={step.label}><article id={`practice-${index}`} className={active === index ? 't-walk-copy is-active' : 't-walk-copy'} key={step.label}>
           <p className="t-eyebrow t-walk-enter"><span>0{index + 1}</span> {step.label}</p><h3 className="t-walk-enter">{step.title}</h3><p className="t-walk-enter">{step.body}</p>
           <div className="t-practice-cue t-walk-enter">
             <span>{['Your practice plan', 'Say this', 'Patterns from recent drives'][index]}</span>
             <p>{['45 minutes. A clear plan.', '“At the next intersection, turn right.”', '“Next time, practice slowing down before the turn.”'][index]}</p>
           </div>
           <figure className="t-walk-mobile"><img src={step.image} alt={step.alt} width="2005" height="4096" loading="lazy" onLoad={() => ScrollTrigger.refresh()}/></figure>
-        </article>)}</div>
+        </article></div>)}</div>
         <div className="t-walk-sticky" aria-hidden="true"><div className="t-walk-images">{practiceSteps.map((step, index) => <img key={step.label} className={active === index ? 'is-active' : ''} src={step.image} alt="" width="2005" height="4096" loading="lazy"/>)}</div><p className="t-screen-caption">{practiceSteps[active].label} <span>— Pruvia app preview</span></p></div>
-      </div>
+      </div></div>
     </section>;
 }
 function Signup() {
