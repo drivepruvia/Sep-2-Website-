@@ -48,3 +48,21 @@ Production posts to Netlify Forms, then calls the existing welcome-email functio
 ## Review locally
 
 Run `npm install` and `npm run dev`, then open the printed local URL. Append `?design=original` for the original homepage. To restore the exact original source, switch to `main` after saving any later changes.
+
+## Beta launch update
+
+The homepage now leads with the product category and audience. Primary calls to action say “Try the beta” and link directly to /beta; email updates are optional and use the existing form integration. The feature concepts have been replaced by the user-provided beta home screenshot and a walkthrough of visible lesson, coaching cue, and progress information. The broader curriculum is explicitly a development roadmap. Existing professional trust signals and the updated demo video are retained. Download guidance explains TestFlight and Google Play testing. No pricing, instructor identities, or testimonials have been invented.
+
+Conversion reporting remains a recommendation, not an implemented analytics integration. Measuring registrations and first lesson starts requires the actual app/backend events; this website alone cannot observe them.
+
+## Product image layout update
+
+- Replaced the lifestyle hero with the supplied real Pruvia home screen beside the headline, beta link, demo, and trust signals.
+- Added supplied plan, coaching, and progress screens as a Before / During / After narrative. Large desktop viewports use a sticky product display with ScrollTrigger-driven crossfades; smaller or short viewports show the screens beside or beneath their matching copy.
+- Moved the existing family illustration into About. Retained Get updates and beta/demo destinations.
+- Reduced-motion preferences disable screen transitions. Original image files are preserved and below-fold images are lazy-loaded.
+- Verified production build and ESLint; inspected the updated desktop hero in the local browser.
+
+## Practice journey motion
+
+Added keyboard-accessible Before / During / After buttons, smooth scrolling to each stage, scroll-synchronized active states and a continuous progress line. GSAP coordinates screen entrance and staggered copy/cue reveals. Each stage has a concise product cue; During highlights the supplied coaching phrase. Reduced-motion mode uses immediate navigation and static presentation. This is a custom GSAP implementation informed by the previously discussed React Bits interaction patterns; no React Bits package or source was imported. Build and ESLint pass.

@@ -2,20 +2,22 @@ import { useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { ArrowRight, ArrowUpRight, Play, Plus, Check, Menu, X } from 'lucide-react';
-import driving from './assets/hero-driving.jpg';
-import routes from './assets/feature-routes.jpg';
-import checklist from './assets/feature-checklist.jpg';
-import coaching from './assets/feature-coaching.jpg';
-import plan from './assets/feature-plan.jpg';
+import { ArrowRight, ArrowUpRight, Play, Plus, Check, X, ShieldCheck, Heart } from 'lucide-react';
+import driving from './assets/hero-driving-updated.png';
+import betaHome from './assets/pruvia-beta-home.png';
+import plan from './assets/pruvia-plan.png';
+import coach from './assets/pruvia-coach.png';
+import progress from './assets/pruvia-progress.png';
+import { IOS_BETA_URL, ANDROID_BETA_URL } from './betaLinks';
 import './taste.css';
 gsap.registerPlugin(useGSAP, ScrollTrigger);
-const features = [
-    { name: 'Guided routes', title: 'A little less “where next?”', text: 'Practice with a purpose. Routes match the skill you’re working on, from quiet neighborhoods to busier roads.', image: routes, alt: 'Existing Pruvia route concept showing a neighborhood practice loop' },
-    { name: 'Skill checklist', title: 'See what’s getting better.', text: 'Keep parking, turns, lane changes, and the next thing to practice together in one place.', image: checklist, alt: 'Existing Pruvia driving skills checklist concept' },
-    { name: 'Safety coaching', title: 'Find the words. Keep the calm.', text: 'Simple coaching prompts help you explain what to look for and what to try on the next drive.', image: coaching, alt: 'Existing Pruvia coaching prompt concept' },
-    { name: 'Adaptive plan', title: 'Their pace. A clearer plan.', text: 'Build on the skills they’re comfortable with, and make room for the ones that need another drive.', image: plan, alt: 'Existing Pruvia practice plan concept' },
-];
+function BetaDownloads() {
+    return <div className="t-downloads" role="group" aria-label="Try the Pruvia beta">
+      <a className="t-download-link" href={IOS_BETA_URL}>Try on iPhone <ArrowUpRight size={18}/></a>
+      <a className="t-download-link" href={ANDROID_BETA_URL}>Try on Android <ArrowUpRight size={18}/></a>
+    </div>;
+}
+const feedbackMail = 'mailto:hello@pruvia.com?subject=Pruvia%20beta%20feedback';
 const stages = [
     ['Foundations', 'Get comfortable before getting moving.', 'Cockpit setup, mirrors, smooth starts and stops.'],
     ['Neighborhood', 'Make the everyday feel familiar.', 'Lane position, signaling, four-way stops and parking.'],
@@ -23,6 +25,65 @@ const stages = [
     ['Highway', 'Bring it all together at speed.', 'Merging, lane changes and defensive scanning.'],
     ['All conditions', 'Prepare for the roads ahead.', 'Night driving, rain and road-test rehearsal.'],
 ];
+const practiceSteps = [
+    { label: 'Before the drive', title: 'A plan before you turn the key.', body: 'Choose your practice time. See the activities, skills, and setting for the drive ahead.', image: plan, alt: 'Pruvia lesson plan with a 45-minute duration and a list of practice activities.' },
+    { label: 'During the drive', title: 'Find the words. Keep it calm.', body: 'Simple coaching prompts help you explain the next move. Know what to say and what to watch for.', image: coach, alt: 'Pruvia right-turn lesson showing a Say this coaching prompt and observation checklist.' },
+    { label: 'After the drive', title: 'See what’s coming together.', body: 'Review practice hours, follow skill progress, and see where to focus next time.', image: progress, alt: 'Pruvia progress screen showing practice hours, curriculum progress, and the next area of focus.' },
+];
+function ProductWalkthrough() {
+    const scope = useRef<HTMLElement>(null);
+    const [active, setActive] = useState(0);
+    useGSAP(() => {
+        const media = gsap.matchMedia();
+        const panels = gsap.utils.toArray<HTMLElement>('.t-walk-copy', scope.current);
+        panels.forEach((panel, index) => {
+            ScrollTrigger.create({ trigger: panel, start: 'top 48%', end: 'bottom 48%', onEnter: () => setActive(index), onEnterBack: () => setActive(index) });
+        });
+        media.add('(prefers-reduced-motion: no-preference)', () => {
+            gsap.fromTo('.t-journey-fill', { scaleX: 0 }, { scaleX: 1, ease: 'none', scrollTrigger: { trigger: '.t-walk-text', start: 'top center', end: 'bottom center', scrub: 0.35 } });
+            panels.forEach(panel => {
+                gsap.from(panel.querySelectorAll('.t-walk-enter'), { y: 22, opacity: 0, duration: 0.65, stagger: 0.1, ease: 'power3.out', scrollTrigger: { trigger: panel, start: 'top 78%', toggleActions: 'play none none reverse' } });
+            });
+        });
+        return () => media.revert();
+    }, { scope });
+    useGSAP(() => {
+        const media = gsap.matchMedia();
+        media.add('(prefers-reduced-motion: no-preference)', () => {
+            const images = gsap.utils.toArray<HTMLElement>('.t-walk-images img');
+            images.forEach((image, index) => {
+                if (index === active) gsap.fromTo(image, { autoAlpha: 0, y: 20, scale: 0.985 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: 'power3.out' });
+                else gsap.set(image, { autoAlpha: 0 });
+            });
+        });
+        return () => media.revert();
+    }, { scope, dependencies: [active], revertOnUpdate: true });
+    function jumpTo(index: number) {
+        const panel = scope.current?.querySelector<HTMLElement>(`#practice-${index}`);
+        if (!panel) return;
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const top = panel.getBoundingClientRect().top + window.scrollY - 120;
+        window.scrollTo({ top, behavior: reduced ? 'instant' : 'smooth' });
+    }
+    return <section ref={scope} id="features" className="t-product-story t-wrap">
+      <div className="t-story-heading t-reveal"><h2>You’re a great driver.<br />Now be a great coach.</h2><p className="t-intro">Explore the Pruvia practice workflow.</p></div>
+      <nav className="t-journey-nav" aria-label="Explore a practice drive">
+        <div className="t-journey-track" aria-hidden="true"><span className="t-journey-fill"/></div>
+        {['Before', 'During', 'After'].map((label, index) => <button key={label} type="button" aria-controls={`practice-${index}`} aria-current={active === index ? 'step' : undefined} onClick={() => jumpTo(index)}><span className="t-journey-dot">{index < active ? <Check size={14}/> : `0${index + 1}`}</span><span>{label}</span><ArrowRight size={16}/></button>)}
+      </nav>
+      <div className="t-walk-layout">
+        <div className="t-walk-text">{practiceSteps.map((step, index) => <article id={`practice-${index}`} className="t-walk-copy" key={step.label}>
+          <p className="t-eyebrow t-walk-enter"><span>0{index + 1}</span> {step.label}</p><h3 className="t-walk-enter">{step.title}</h3><p className="t-walk-enter">{step.body}</p>
+          <div className="t-practice-cue t-walk-enter">
+            <span>{['Your practice plan', 'Say this', 'Patterns from recent drives'][index]}</span>
+            <p>{['45 minutes. A clear plan.', '“At the next intersection, turn right.”', '“Next time, practice slowing down before the turn.”'][index]}</p>
+          </div>
+          <figure className="t-walk-mobile"><img src={step.image} alt={step.alt} width="2005" height="4096" loading="lazy" onLoad={() => ScrollTrigger.refresh()}/></figure>
+        </article>)}</div>
+        <div className="t-walk-sticky" aria-hidden="true"><div className="t-walk-images">{practiceSteps.map((step, index) => <img key={step.label} className={active === index ? 'is-active' : ''} src={step.image} alt="" width="2005" height="4096" loading="lazy"/>)}</div><p className="t-screen-caption">{practiceSteps[active].label} <span>— Pruvia app preview</span></p></div>
+      </div>
+    </section>;
+}
 function Signup() {
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'delayed' | 'error'>('idle');
@@ -55,13 +116,13 @@ function Signup() {
             busy.current = false;
         }
     }
-    return <section id="cta" className="t-signup t-wrap">
-    <div className="t-reveal"><p className="t-eyebrow">For the next drive. And the ones after.</p><h2>A calmer start<br />begins with you.</h2><p>Join the waitlist for updates as we build Pruvia with early families.</p></div>
+    return <section id="updates" className="t-signup t-wrap">
+    <div><h2>Get updates.</h2><p>Get product news, beta updates, and new releases from Pruvia, delivered to your inbox.</p></div>
     <div className="t-form-area">
-      {status === 'done' || status === 'delayed' ? <div className="t-success" role="status"><Check size={28}/><h3>{import.meta.env.DEV ? 'Preview complete.' : 'You’re on the list.'}</h3><p>{import.meta.env.DEV ? 'This local preview does not save waitlist submissions. The live site saves them through Netlify Forms.' : status === 'delayed' ? 'Your signup was saved. Your welcome email is delayed, but you can explore the beta now.' : 'Thanks for joining us. Look out for your welcome email.'}</p><a className="t-button" href="/beta">Try the Beta <ArrowUpRight size={18}/></a></div> : <form name="signupForm" method="POST" data-netlify="true" onSubmit={submit}>
+      {status === 'done' || status === 'delayed' ? <div className="t-success" role="status"><Check size={28}/><h3>{import.meta.env.DEV ? 'Preview complete.' : 'You’re subscribed.'}</h3><p>{import.meta.env.DEV ? 'This local preview does not save email subscriptions. The live site saves them through Netlify Forms.' : status === 'delayed' ? 'Your email was saved. Your welcome email is delayed, but you can explore the beta now.' : 'Thanks for joining us. Look out for your welcome email.'}</p><BetaDownloads /></div> : <form name="signupForm" method="POST" data-netlify="true" onSubmit={submit}>
         <input type="hidden" name="form-name" value="signupForm"/>
         <label htmlFor="taste-email">Your email address</label>
-        <div className="t-form-line"><input id="taste-email" type="email" name="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com"/><button aria-label="Join waitlist" disabled={status === 'sending'}>{status === 'sending' ? 'Joining…' : 'Join waitlist'}<ArrowRight size={20}/></button></div>
+        <div className="t-form-line"><input id="taste-email" type="email" name="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com"/><button aria-label="Get updates" disabled={status === 'sending'}>{status === 'sending' ? 'Subscribing…' : 'Get updates'}<ArrowRight size={20}/></button></div>
         {status === 'error' && <p role="alert">We couldn’t save your email. Please try again.</p>}
       </form>}
     </div>
@@ -69,13 +130,9 @@ function Signup() {
 }
 export default function TasteLanding() {
     const root = useRef<HTMLDivElement>(null);
-    const feature = useRef<HTMLDivElement>(null);
     const video = useRef<HTMLDialogElement>(null);
     const videoTrigger = useRef<HTMLButtonElement>(null);
-    const [active, setActive] = useState(0);
-    const [menu, setMenu] = useState(false);
     const [videoOpen, setVideoOpen] = useState(false);
-    const current = features[active];
     useGSAP(() => {
         const media = gsap.matchMedia();
         media.add('(prefers-reduced-motion: no-preference)', () => {
@@ -85,36 +142,42 @@ export default function TasteLanding() {
         }, root);
         return () => media.revert();
     }, { scope: root });
-    useGSAP(() => {
-        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-            gsap.from(feature.current, { opacity: 0.35, y: 10, duration: 0.4, clearProps: 'all' });
-    }, { scope: root, dependencies: [active], revertOnUpdate: true });
     function showVideo() { setVideoOpen(true); video.current?.showModal(); }
     function closeVideo() { video.current?.close(); setVideoOpen(false); videoTrigger.current?.focus(); }
     return <div ref={root} className="taste">
     <a href="#main-content" className="t-skip">Skip to content</a>
     <header className="t-nav t-wrap">
       <a href="/" aria-label="Pruvia home"><img className="t-logo" src="/pruvia-logo.png" alt="Pruvia" width="140" height="36"/></a>
-      <nav className={menu ? 't-links is-open' : 't-links'} aria-label="Main navigation">{[['#how', 'How it works'], ['#curriculum', 'Curriculum'], ['#about', 'About']].map(([href, label]) => <a key={href} href={href} onClick={() => setMenu(false)}>{label}</a>)}</nav>
-      <a className="t-nav-cta" href="#cta">Join waitlist <ArrowUpRight size={17}/></a>
-      <button className="t-menu" aria-label={menu ? 'Close menu' : 'Open menu'} aria-expanded={menu} onClick={() => setMenu(!menu)}>{menu ? <X /> : <Menu />}</button>
+      <a className="t-nav-cta" href="#updates">Get updates <ArrowUpRight size={17}/></a>
     </header>
     <main id="main-content">
-      <section className="t-hero t-wrap">
-        <p className="t-eyebrow t-hero-enter">A clearer way to coach a new driver</p>
-        <h1 className="t-hero-enter">Their open road.<br /><span>Your steady hand.</span></h1>
-        <div className="t-hero-bottom t-hero-enter"><p>Turn practice drives into progress.<br />A guided coaching plan for you and your teen.</p><div className="t-actions"><a className="t-button" href="#cta">Get early access <ArrowUpRight size={20}/></a><button ref={videoTrigger} className="t-video-button" onClick={showVideo}><Play size={16}/> Meet Pruvia</button></div></div>
-        <div className="t-photo t-hero-enter"><img src={driving} alt="A parent and teen sharing a practice drive, Pruvia brand illustration" width="1920" height="1080" fetchPriority="high"/></div>
+      <section className="t-hero t-wrap t-product-hero">
+        <div className="t-hero-content">
+          <h1 className="t-hero-enter t-launch-title">The coaching app for parents <span>teaching their teen to drive.</span></h1>
+          <p className="t-launch-slogan t-hero-enter">You’ve got the experience.<br />We’ve got the lesson plan.</p>
+          <div className="t-actions t-hero-enter"><BetaDownloads /><button ref={videoTrigger} className="t-video-button" onClick={showVideo}><Play size={16}/> Watch the demo</button></div>
+          <ul className="t-trust t-hero-enter" aria-label="Pruvia approach"><li><ShieldCheck size={20} strokeWidth={1.7} aria-hidden="true"/>DMV-aligned</li><li><Heart size={20} strokeWidth={1.7} aria-hidden="true"/>Built with driving instructors</li></ul>
+        </div>
+        <figure className="t-hero-product t-hero-enter"><div className="t-product-backdrop"/><img src={betaHome} alt="Pruvia home screen: your next practice drive, lesson plan, and driving progress in one place." width="1816" height="3760" fetchPriority="high"/><figcaption>Your next drive starts here.</figcaption></figure>
       </section>
-      <section id="about" className="t-about t-wrap t-reveal"><p className="t-about-lead">You know how to drive.<br /><span>Teaching it is a different journey.</span></p><div className="t-about-body"><p>The practice between driving lessons matters. But a logbook doesn’t tell you what to teach, where to go, or what to say.</p><p>Pruvia gives the passenger seat a plan. So you can spend less time figuring it out and more time moving forward, together.</p></div></section>
-      <section id="how" className="t-how t-wrap"><div className="t-reveal"><h2>One drive at a time.</h2><p className="t-intro">A simple rhythm for building confidence together.</p></div><div className="t-steps">{[['Find your starting point', 'Start with what your teen knows. Make a plan for what comes next.'], ['Head out with a plan', 'Know the skill, the route, and the words to use before you leave.'], ['Reflect. Then build on it.', 'Log what went well and what needs another go. Let the next drive build on this one.']].map(([title, text], i) => <article className="t-step t-reveal" key={title}><span className="t-step-number" aria-hidden="true">{i + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div></section>
-      <section id="features" className="t-features t-wrap"><div className="t-feature-heading t-reveal"><p className="t-eyebrow">Built for the passenger seat</p><h2>A little guidance.<br />A lot more confidence.</h2></div><div className="t-feature-grid"><div className="t-feature-options" aria-label="Explore Pruvia features">{features.map((item, i) => <button key={item.name} aria-expanded={i === active} aria-controls="feature-preview" className={i === active ? 'is-active' : ''} onClick={() => setActive(i)}><span className="t-option-title">{item.name}<ArrowUpRight size={22}/></span>{i === active && <span className="t-option-text">{item.title}<small>{item.text}</small></span>}</button>)}</div><div id="feature-preview" className="t-feature-preview" ref={feature}><img src={current.image} alt={current.alt} width="1024" height="1024" loading="lazy" onLoad={() => ScrollTrigger.refresh()}/><p>Product concept / {current.name}</p></div></div></section>
-      <section id="curriculum" className="t-curriculum t-wrap"><div className="t-reveal"><h2>Small steps.<br />Bigger possibilities.</h2><p className="t-intro">From the first quiet parking lot to the roads they’ll drive every day.</p></div><div className="t-stages">{stages.map(([name, title, body], i) => <details key={name} onToggle={() => ScrollTrigger.refresh()} name="curriculum" open={i === 0 ? true : undefined} className="t-reveal"><summary><span className="t-stage-index">{String(i + 1).padStart(2, '0')}</span><h3>{name}</h3><span className="t-stage-sub">{title}</span><Plus size={23}/></summary><p>{body}</p></details>)}</div></section>
-      <section id="faq" className="t-faq t-wrap"><h2 className="t-reveal">Before we <br />hit the road.</h2><div>{[['Does this replace driving school?', 'No. Pruvia complements driving school by bringing structure to the practice you do together between lessons.'], ['Do I need to be a great driver to coach?', 'You don’t need to be a professional instructor. Pruvia helps you prepare for practice with a plan and clear coaching prompts.'], ['When can my family start?', 'We’re testing an early beta. Join the waitlist for updates, or visit the beta page to explore the current release.'], ['Which states is this for?', 'Pruvia is being built for families in the U.S. Check the current beta for available content and your state’s DMV for licensing requirements.']].map(([q, a]) => <details key={q} onToggle={() => ScrollTrigger.refresh()}><summary>{q}<Plus size={20}/></summary><p>{a}</p>{q === 'When can my family start?' && <a className="t-inline-link" href="/beta">Explore the beta <ArrowUpRight size={16}/></a>}</details>)}</div></section>
+
+      <ProductWalkthrough />
+      <section id="about" className="t-about t-family-story t-wrap t-reveal"><h2 className="t-family-title">For the day they drive on their&nbsp;own.</h2><div className="t-about-body"><p>Every practice drive is a chance to pass on more than driving skills: good judgment, steady habits, and the confidence to make their own decisions. Pruvia helps you make that time together count.</p></div><div className="t-photo"><img src={driving} alt="A parent and teen sharing a practice drive, Pruvia brand illustration" width="1672" height="941" loading="lazy"/></div></section>
+
+      <section id="curriculum" className="t-curriculum t-wrap"><div className="t-reveal"><h2>From the basics<br />to the road ahead.</h2><p className="t-intro">The learning path we’re building toward, from quiet parking lots to everyday roads. The beta starts with an early lesson; the full curriculum is still in development.</p></div><div className="t-stages">{stages.map(([name, title, body], i) => <details key={name} onToggle={() => ScrollTrigger.refresh()} name="curriculum" open={i === 0 ? true : undefined} className="t-reveal"><summary><span className="t-stage-index">{String(i + 1).padStart(2, '0')}</span><h3>{name}</h3><span className="t-stage-sub">{title}</span><Plus size={23}/></summary><p>{body}</p></details>)}</div></section>
+      <section id="faq" className="t-faq t-wrap"><h2 className="t-reveal">Before we <br />hit the road.</h2><div>{[['Does this replace driving school?', 'No. Pruvia complements driving school by bringing structure to the practice you do together between lessons.'], ['Do I need to be a great driver to coach?', 'You don’t need to be a professional instructor. Pruvia helps you prepare for practice with a plan and clear coaching prompts.'], ['When can my family start?', 'You can try the beta now. Choose iPhone or Android below to open the beta invitation. No waitlist is required.'], ['How do I install the beta?', 'On iPhone, follow the TestFlight invitation. On Android, follow the Google Play testing link. Use either download option on this page.'], ['What is available in the beta?', 'The current release is an early lesson experience. This page shows the home screen and practice workflow; the full curriculum is still in development.'], ['Which states is this for?', 'Pruvia is being built for families in the U.S. Check the current beta for available content and your state’s DMV for licensing requirements.']].map(([q, a]) => <details key={q} onToggle={() => ScrollTrigger.refresh()}><summary>{q}<Plus size={20}/></summary><p>{a}</p>{q === 'When can my family start?' && <BetaDownloads />}</details>)}</div></section>
+      <section id="cta" className="t-launch-cta t-wrap t-reveal"><h2>Ready for your next<br />practice drive?</h2><p>Bring a lesson plan to your next practice drive.</p><BetaDownloads /><a className="t-inline-link" href={feedbackMail}>Email feedback <ArrowUpRight size={16}/></a></section>
       <Signup />
     </main>
-    <footer className="t-footer t-wrap"><div className="t-footer-top"><a href="/" aria-label="Pruvia home"><img className="t-logo" src="/pruvia-logo.png" alt="Pruvia" width="140" height="36"/></a><p>Better practice. Together.</p><a href="mailto:hello@pruvia.com">hello@pruvia.com <ArrowUpRight size={16}/></a></div><div className="t-footer-links"><a href="#how">How it works</a><a href="#features">Features</a><a href="#curriculum">Curriculum</a><a href="#about">About</a><a href="#faq">FAQ</a><a href="/book-email">Chat with us <ArrowUpRight size={14}/></a></div><div className="t-footer-bottom"><span>© {new Date().getFullYear()} Pruvia. All rights reserved.</span><div><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
+    <footer className="t-footer t-wrap">
+      <div className="t-footer-grid">
+        <div className="t-footer-brand"><a href="/" aria-label="Pruvia home"><img className="t-logo" src="/pruvia-logo.png" alt="Pruvia" width="140" height="36"/></a><p>Better practice. Together.</p></div>
+        <nav className="t-footer-pages" aria-label="Footer navigation"><h2>Explore</h2><a href="#features">How it works</a><a href="#curriculum">Curriculum</a><a href="#about">Why Pruvia</a><a href="#faq">FAQ</a></nav>
+        <div className="t-footer-contact"><h2>Get in touch</h2><a href="mailto:hello@pruvia.com">hello@pruvia.com <ArrowUpRight size={16}/></a><a href={feedbackMail}>Email feedback <ArrowUpRight size={16}/></a></div>
+      </div>
+      <div className="t-footer-bottom"><span>© {new Date().getFullYear()} Pruvia. All rights reserved.</span><div><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+    </footer>
     <dialog ref={video} className="t-dialog" onCancel={closeVideo} onClick={event => { if (event.target === event.currentTarget)
-        closeVideo(); }} aria-label="Meet Pruvia introduction video"><button className="t-dialog-close" aria-label="Close video" onClick={closeVideo}><X /></button>{videoOpen && <iframe title="DrivePruvia introduction video" src="https://www.youtube.com/embed/9TGRKb7kiMg?rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen/>}</dialog>
+        closeVideo(); }} aria-label="Meet Pruvia introduction video"><button className="t-dialog-close" aria-label="Close video" onClick={closeVideo}><X /></button>{videoOpen && <iframe title="DrivePruvia introduction video" src="https://www.youtube.com/embed/qCk4ew6lGMQ?rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen/>}</dialog>
   </div>;
 }
