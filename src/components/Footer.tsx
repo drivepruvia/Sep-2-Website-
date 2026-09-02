@@ -67,10 +67,10 @@ export default function Footer() {
               <Mail className="w-4 h-4 text-accent shrink-0" />
 
               <a
-                href="mailto:hello@pruvia.com"
+                href="mailto:hello@drivepruvia.com"
                 className="hover:text-foreground"
               >
-                hello@pruvia.com
+                hello@drivepruvia.com
               </a>
             </li>
 
@@ -100,15 +100,6 @@ export default function Footer() {
         <div className="mx-auto max-w-6xl px-6 py-5 flex flex-col md:flex-row justify-between gap-3 text-xs text-muted-foreground">
           <span>© {new Date().getFullYear()} Pruvia. All rights reserved.</span>
 
-          <div className="flex gap-5">
-            <a href="#" className="hover:text-foreground">
-              Privacy
-            </a>
-
-            <a href="#" className="hover:text-foreground">
-              Terms
-            </a>
-          </div>
         </div>
       </div>
     </footer>

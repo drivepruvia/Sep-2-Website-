@@ -691,7 +691,7 @@ export default function App() {
   if (pathname === "/email-preview") {
     return (
       <iframe
-        src="/email-preview.html"
+        src="/email-preview-dark.html"
         title="Welcome email preview"
         className="h-screen w-full border-0"
       />

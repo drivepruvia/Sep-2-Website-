@@ -17,7 +17,7 @@ function BetaDownloads() {
       <a className="t-download-link" href={ANDROID_BETA_URL}>Try on Android <ArrowUpRight size={18}/></a>
     </div>;
 }
-const feedbackMail = 'mailto:hello@pruvia.com?subject=Pruvia%20beta%20feedback';
+const feedbackMail = 'mailto:hello@drivepruvia.com?subject=Pruvia%20beta%20feedback';
 const stages = [
     ['Foundations', 'Get comfortable before getting moving.', 'Cockpit setup, mirrors, smooth starts and stops.'],
     ['Neighborhood', 'Make the everyday feel familiar.', 'Lane position, signaling, four-way stops and parking.'],
@@ -82,7 +82,7 @@ function ProductWalkthrough() {
 }
 function Signup() {
     const [email, setEmail] = useState('');
-    const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'delayed' | 'error'>('idle');
+    const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'dry-run' | 'duplicate' | 'delayed' | 'error'>('idle');
     const busy = useRef(false);
     async function submit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -96,14 +96,17 @@ function Signup() {
                 if (!response.ok)
                     throw new Error('Form submission failed');
             }
-            let delivered = false;
+            let emailStatus: 'done' | 'dry-run' | 'duplicate' | 'delayed' = 'delayed';
             try {
                 const response = await fetch('/.netlify/functions/send-welcome', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.trim() }) });
-                delivered = response.ok;
+                const result = await response.text();
+                if (response.ok && result === 'Welcome email sent') emailStatus = 'done';
+                else if (response.ok && result.includes('skipped in local dry run')) emailStatus = 'dry-run';
+                else if (response.ok && result.includes('already sent recently')) emailStatus = 'duplicate';
             }
             catch { /* A saved signup still succeeds when email delivery is unavailable. */ }
             setEmail('');
-            setStatus(delivered ? 'done' : 'delayed');
+            setStatus(emailStatus);
         }
         catch {
             setStatus('error');
@@ -115,7 +118,7 @@ function Signup() {
     return <section id="updates" className="t-signup t-wrap">
     <div><h2>Get updates.</h2><p>Get product news, beta updates, and new releases from Pruvia, delivered to your inbox.</p></div>
     <div className="t-form-area">
-      {status === 'done' || status === 'delayed' ? <div className="t-success" role="status"><Check size={28}/><h3>{import.meta.env.DEV ? 'Preview complete.' : 'You’re subscribed.'}</h3><p>{import.meta.env.DEV ? 'This local preview does not save email subscriptions. The live site saves them through Netlify Forms.' : status === 'delayed' ? 'Your email was saved. Your welcome email is delayed, but you can explore the beta now.' : 'Thanks for joining us. Look out for your welcome email.'}</p><BetaDownloads /></div> : <form name="signupForm" method="POST" data-netlify="true" onSubmit={submit}>
+      {['done', 'dry-run', 'duplicate', 'delayed'].includes(status) ? <div className="t-success" role="status"><Check size={28}/><h3>{status === 'done' ? 'Check your inbox.' : status === 'dry-run' ? 'Dry run complete.' : status === 'duplicate' ? 'Already sent.' : import.meta.env.DEV ? 'Email not sent.' : 'You’re subscribed.'}</h3><p>{status === 'done' ? (import.meta.env.DEV ? 'Your test welcome email was sent. Local preview does not save the subscription in Netlify Forms.' : 'Thanks for joining us. Look out for your welcome email.') : status === 'dry-run' ? 'Email sending is disabled because SKIP_WELCOME_EMAIL is set to true.' : status === 'duplicate' ? 'A welcome email was sent to this address recently. Please wait 10 minutes before trying again.' : import.meta.env.DEV ? 'Check your SMTP credentials and the Netlify Dev terminal for the delivery error.' : 'Your email was saved. Your welcome email is delayed, but you can explore the beta now.'}</p><BetaDownloads /></div> : <form name="signupForm" method="POST" data-netlify="true" onSubmit={submit}>
         <input type="hidden" name="form-name" value="signupForm"/>
         <label htmlFor="taste-email">Your email address</label>
         <div className="t-form-line"><input id="taste-email" type="email" name="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com"/><button aria-label="Get updates" disabled={status === 'sending'}>{status === 'sending' ? 'Subscribing…' : 'Get updates'}<ArrowRight size={20}/></button></div>
@@ -169,9 +172,9 @@ export default function TasteLanding() {
       <div className="t-footer-grid">
         <div className="t-footer-brand"><a href="/" aria-label="Pruvia home"><img className="t-logo" src="/pruvia-logo.png" alt="Pruvia" width="140" height="36"/></a><p>Better practice. Together.</p></div>
         <nav className="t-footer-pages" aria-label="Footer navigation"><h2>Explore</h2><a href="#features">How it works</a><a href="#curriculum">Curriculum</a><a href="#about">Why Pruvia</a><a href="#faq">FAQ</a></nav>
-        <div className="t-footer-contact"><h2>Get in touch</h2><a href="mailto:hello@pruvia.com">hello@pruvia.com <ArrowUpRight size={16}/></a><a href={feedbackMail}>Email feedback <ArrowUpRight size={16}/></a></div>
+        <div className="t-footer-contact"><h2>Get in touch</h2><a href="mailto:hello@drivepruvia.com">hello@drivepruvia.com <ArrowUpRight size={16}/></a><a href="/book/website">Book a call <ArrowUpRight size={16}/></a></div>
       </div>
-      <div className="t-footer-bottom"><span>© {new Date().getFullYear()} Pruvia. All rights reserved.</span><div><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+      <div className="t-footer-bottom"><span>© {new Date().getFullYear()} Pruvia. All rights reserved.</span></div>
     </footer>
     <dialog ref={video} className="t-dialog" onCancel={closeVideo} onClick={event => { if (event.target === event.currentTarget)
         closeVideo(); }} aria-label="Meet Pruvia introduction video"><button className="t-dialog-close" aria-label="Close video" onClick={closeVideo}><X /></button>{videoOpen && <iframe title="DrivePruvia introduction video" src="https://www.youtube.com/embed/qCk4ew6lGMQ?rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen/>}</dialog>

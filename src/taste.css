@@ -271,6 +271,18 @@
 .t-journey-nav:has(button:nth-of-type(3)[aria-current]) .t-journey-fill{transform:scaleX(1)}
 @media(prefers-reduced-motion:reduce){.t-journey-fill{transition:none}}
 
+/* Shared presentation for standalone routes. */
+.t-utility-page{min-height:100dvh;display:flex;flex-direction:column}.t-utility-page .t-nav{width:100%}
+.t-utility-main{width:100%;flex:1;display:grid;align-items:center;padding-block:clamp(60px,10vw,150px)}
+.t-utility-card{max-width:850px;border-top:1px solid var(--t-line);padding-top:clamp(28px,4vw,55px)}
+.taste .t-utility-card h1{max-width:780px;margin:18px 0 24px;font-size:clamp(3rem,7vw,6.5rem);font-weight:550;letter-spacing:-.065em;line-height:1.02}
+.t-utility-intro{max-width:650px;color:var(--t-muted);font-size:var(--type-body);text-wrap:pretty}
+.t-utility-card .t-downloads,.t-utility-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}.t-platform-status{margin-top:22px;color:var(--t-blue);font-weight:650}
+.t-utility-note{max-width:680px;margin-top:26px!important;color:var(--t-muted);font-size:var(--type-small)}
+.t-secondary-link{display:inline-flex;align-items:center;justify-content:space-between;gap:20px;min-height:48px;border:1px solid var(--t-line);border-radius:4px;padding:15px 19px;font-size:var(--type-action);font-weight:650}.t-secondary-link:hover{border-color:var(--t-blue);color:var(--t-blue)}
+.t-utility-footer{width:100%;border-top:1px solid var(--t-line);padding-block:24px;color:var(--t-muted);font-size:var(--type-label)}.t-not-found h1{color:var(--t-blue)}
+@media(max-width:767px){.t-utility-main{padding-block:55px}.taste .t-utility-card h1{font-size:clamp(2.7rem,13vw,4.4rem)}.t-utility-card .t-downloads,.t-utility-actions{display:grid}.t-secondary-link{width:100%}}
+
 /* Final stage gets reading time with both copy and phone visible. */
 .t-walk-stage{display:block}
 @media(min-width:1000px) and (min-height:700px) and (pointer:fine){

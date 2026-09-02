@@ -1,77 +1,30 @@
 import { useEffect, useState } from "react";
-import { ArrowRight } from "lucide-react";
-
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { IOS_BETA_URL, ANDROID_BETA_URL } from "./betaLinks";
+import "./taste.css";
 
 type MobilePlatform = "ios" | "android" | null;
-
 function detectMobilePlatform(): MobilePlatform {
-  const userAgent = navigator.userAgent;
-
-  if (/android/i.test(userAgent)) return "android";
-
-  const isAppleMobile = /iPad|iPhone|iPod/i.test(userAgent);
-  const isIPadDesktopMode =
-    navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
-
-  return isAppleMobile || isIPadDesktopMode ? "ios" : null;
+  if (/android/i.test(navigator.userAgent)) return "android";
+  const appleMobile = /iPad|iPhone|iPod/i.test(navigator.userAgent);
+  const iPadDesktopMode = navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+  return appleMobile || iPadDesktopMode ? "ios" : null;
 }
 
 export default function BetaPage() {
   const [detectedPlatform] = useState<MobilePlatform>(detectMobilePlatform);
-
   useEffect(() => {
     if (detectedPlatform === "ios") window.location.replace(IOS_BETA_URL);
     if (detectedPlatform === "android") window.location.replace(ANDROID_BETA_URL);
   }, [detectedPlatform]);
-
-  return (
-    <main className="min-h-[100dvh] bg-background px-6 py-10 text-foreground flex items-center justify-center">
-      <div className="w-full max-w-2xl text-center">
-        <section className="rounded-[2rem] border border-border bg-card p-8 shadow-[var(--shadow-soft)] sm:p-12">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent">
-            <img
-              src="/favicon.png"
-              alt="Pruvia app icon"
-              width={32}
-              height={32}
-              className="h-8 w-8"
-            />
-          </div>
-          <h1 className="mt-6 text-4xl sm:text-5xl">Try the Pruvia beta</h1>
-          <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-            The coaching app for parents teaching their teen to drive.
-            Choose your device to start with the current beta.
-          </p>
-
-          {detectedPlatform && (
-            <p className="mt-5 text-sm font-medium text-accent" role="status">
-              We detected your {detectedPlatform === "ios" ? "Apple" : "Android"} device. Taking you to the beta&hellip;
-            </p>
-          )}
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            <a
-              href={IOS_BETA_URL}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
-            >
-              Try on iOS <ArrowRight className="h-4 w-4" />
-            </a>
-            <a
-              href={ANDROID_BETA_URL}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-6 py-4 text-sm font-semibold text-accent-foreground transition hover:opacity-90"
-            >
-              Try on Android <ArrowRight className="h-4 w-4" />
-            </a>
-          </div>
-
-          <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
-            On iPhone, install TestFlight and follow the invitation to install Pruvia.
-            On Android, follow the Google Play testing instructions.
-            Mobile visitors are sent to the option for their device.
-          </p>
-        </section>
-      </div>
-    </main>
-  );
+  return <div className="taste t-utility-page">
+    <header className="t-nav t-wrap"><a href="/" aria-label="Pruvia home"><img className="t-logo" src="/pruvia-logo.png" alt="Pruvia" width="140" height="36" /></a><a className="t-nav-cta" href="/"><ArrowLeft size={17} /> Home</a></header>
+    <main className="t-utility-main t-wrap"><section className="t-utility-card">
+      <p className="t-eyebrow">Early access</p><h1>Try the Pruvia beta.</h1>
+      <p className="t-utility-intro">The coaching app for parents teaching their teen to drive. Choose your device to start with the current beta.</p>
+      {detectedPlatform && <p className="t-platform-status" role="status">We detected your {detectedPlatform === "ios" ? "Apple" : "Android"} device. Taking you to the beta&hellip;</p>}
+      <div className="t-downloads"><a href={IOS_BETA_URL} className="t-download-link">Try on iPhone <ArrowUpRight size={18} /></a><a href={ANDROID_BETA_URL} className="t-download-link">Try on Android <ArrowUpRight size={18} /></a></div>
+      <p className="t-utility-note">On iPhone, install TestFlight and follow the invitation to install Pruvia. On Android, follow the Google Play testing instructions. Mobile visitors are sent to the option for their device.</p>
+    </section></main>
+  </div>;
 }

@@ -1,5 +1,8 @@
 /book-email /.netlify/functions/track-booking?source=email 200!
 /book/:source /.netlify/functions/track-booking?source=:source 200!
-/email-preview /email-preview.html 200
+/email-preview /email-preview-dark.html 200
+/email-preview-light /email-preview.html 200
+/email-preview-dark /email-preview-dark.html 200
+/flyer /beta 301!
 /beta /index.html 200
 /* /index.html 200
