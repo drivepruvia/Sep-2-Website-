@@ -1,0 +1,198 @@
+import nodemailer from "nodemailer";
+
+const RECENT_SEND_TTL_MS = 10 * 60 * 1000;
+const recentSends = new Map();
+
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function cleanupRecentSends(now) {
+  for (const [email, expiresAt] of recentSends.entries()) {
+    if (expiresAt <= now) {
+      recentSends.delete(email);
+    }
+  }
+}
+
+export async function handler(event) {
+  if (!event.body) {
+    return {
+      statusCode: 200,
+      body: "send-welcome function is alive",
+    };
+  }
+
+  let body;
+
+  try {
+    body = JSON.parse(event.body);
+  } catch (err) {
+    return {
+      statusCode: 400,
+      body: "Invalid JSON",
+    };
+  }
+
+  const data =
+    body.payload?.data ||
+    body.data ||
+    body;
+
+  console.log("Parsed data:", JSON.stringify(data));
+
+  const name = data.name || "there";
+  const email = normalizeEmail(data.email);
+
+  if (!email) {
+    return {
+      statusCode: 400,
+      body: "Missing email",
+    };
+  }
+
+  const now = Date.now();
+  cleanupRecentSends(now);
+
+  if (recentSends.has(email)) {
+    return {
+      statusCode: 200,
+      body: "Welcome email already sent recently",
+    };
+  }
+
+  const isLocalDryRun =
+    process.env.SKIP_WELCOME_EMAIL === "true" ||
+    (process.env.NETLIFY_DEV === "true" &&
+      (!process.env.SMTP_USER || !process.env.SMTP_PASS));
+
+  if (isLocalDryRun) {
+    recentSends.set(email, now + RECENT_SEND_TTL_MS);
+    console.log(`Dry run: skipped welcome email to ${email}`);
+
+    return {
+      statusCode: 200,
+      body: "Welcome email skipped in local dry run",
+    };
+  }
+
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    return {
+      statusCode: 500,
+      body: "SMTP credentials are not configured",
+    };
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: "mail.spacemail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  await transporter.sendMail({
+    from: `"DrivePruvia" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: "Welcome to DrivePruvia",
+    text: `Hi ${name},
+
+Thank you for signing up for DrivePruvia.
+
+We'll keep you updated as we build tools to help teen drivers stay safe and confident on the road.
+
+If you'd like to share your experiences as a parent, guardian, or teen driver, we'd love to hear from you. Your feedback directly influences what we build.
+
+Schedule a conversation with us:
+https://outlook.office.com/book/TeenDriverParentDicoveryInterviews@gtvault.onmicrosoft.com/?ismsaljsauthenabled
+
+Test the app:
+https://drivepruvia.com/beta
+
+Or simply reply to this email with any thoughts or questions.
+
+Thank you for helping us build something meaningful.
+
+The DrivePruvia Team`,
+    html: `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to DrivePruvia</title>
+  </head>
+  <body style="margin:0; padding:0; background:#f5f7fb; font-family:Arial, Helvetica, sans-serif; color:#172033;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f5f7fb; padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px; background:#ffffff; border-radius:18px; overflow:hidden; box-shadow:0 18px 45px rgba(23,32,51,0.08);">
+            <tr>
+              <td style="background:#172033; padding:34px 32px;">
+                <div style="font-size:14px; letter-spacing:0.16em; text-transform:uppercase; color:#8fd3ff; font-weight:700;">
+                  DrivePruvia
+                </div>
+                <h1 style="margin:14px 0 0; color:#ffffff; font-size:32px; line-height:1.15; font-weight:800;">
+                  You're on the waitlist.
+                </h1>
+                <p style="margin:14px 0 0; color:#d9e4f2; font-size:16px; line-height:1.6;">
+                  Thanks for signing up. We're building calmer, more structured practice for teen drivers and the people coaching them.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:34px 32px;">
+                <p style="margin:0 0 18px; font-size:17px; line-height:1.65;">
+                  Hi ${name},
+                </p>
+                <p style="margin:0 0 18px; font-size:17px; line-height:1.65;">
+                  We'll keep you updated as DrivePruvia gets closer to launch, including early lessons, product updates, and opportunities to help shape what we build.
+                </p>
+                <p style="margin:0 0 26px; font-size:17px; line-height:1.65;">
+                  If you're a parent, guardian, or teen driver, we'd love to hear what practice driving feels like from your side of the passenger seat.
+                </p>
+                <table role="presentation" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td style="border-radius:999px; background:#2563eb;">
+                      <a href="https://outlook.office.com/book/TeenDriverParentDicoveryInterviews@gtvault.onmicrosoft.com/?ismsaljsauthenabled" style="display:inline-block; padding:14px 22px; color:#ffffff; text-decoration:none; font-size:15px; font-weight:700;">
+                        Book a 25 minute call
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:14px;">
+                  <tr>
+                    <td style="border-radius:999px; background:#172033;">
+                      <a href="https://drivepruvia.com/beta" style="display:inline-block; padding:14px 22px; color:#ffffff; text-decoration:none; font-size:15px; font-weight:700;">
+                        Test the app
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:28px 0 0; font-size:15px; line-height:1.65; color:#5f6b7a;">
+                  Prefer email? Just reply with any thoughts or questions. Every bit of feedback helps us build something more useful.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:22px 32px; background:#f0f4f9; color:#6b7788; font-size:13px; line-height:1.6;">
+                Thank you for helping us build DrivePruvia.<br />
+                The DrivePruvia Team
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`,
+  });
+
+  recentSends.set(email, now + RECENT_SEND_TTL_MS);
+
+  return {
+    statusCode: 200,
+    body: "Welcome email sent",
+  };
+}
