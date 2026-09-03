@@ -4,5 +4,7 @@
 /email-preview-light /email-preview.html 200
 /email-preview-dark /email-preview-dark.html 200
 /flyer /beta 301!
+/app-demo /beta 301!
 /beta /index.html 200
+/privacy /index.html 200
 /* /index.html 200

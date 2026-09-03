@@ -98,7 +98,11 @@ export default function Footer() {
 
       <div className="border-t border-border/60">
         <div className="mx-auto max-w-6xl px-6 py-5 flex flex-col md:flex-row justify-between gap-3 text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} Pruvia. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} Pruvia Inc. All rights reserved.</span>
+
+          <a href="/privacy" className="hover:text-foreground">
+            Privacy
+          </a>
 
         </div>
       </div>

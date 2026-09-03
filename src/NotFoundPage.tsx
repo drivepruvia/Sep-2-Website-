@@ -9,6 +9,6 @@ export default function NotFoundPage() {
       <p className="t-utility-intro">The page may have moved, or the address might be off by a turn. Let's get you safely back on route.</p>
       <div className="t-utility-actions"><a href="/" className="t-download-link">Back to home <ArrowUpRight size={18} /></a><a href="/beta" className="t-secondary-link">Try the beta <ArrowUpRight size={18} /></a></div>
     </section></main>
-    <footer className="t-utility-footer t-wrap">© {new Date().getFullYear()} Pruvia. Better practice. Together.</footer>
+    <footer className="t-utility-footer t-wrap">© {new Date().getFullYear()} Pruvia Inc. Better practice. Together.</footer>
   </div>;
 }

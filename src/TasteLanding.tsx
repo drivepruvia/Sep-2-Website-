@@ -174,7 +174,7 @@ export default function TasteLanding() {
         <nav className="t-footer-pages" aria-label="Footer navigation"><h2>Explore</h2><a href="#features">How it works</a><a href="#curriculum">Curriculum</a><a href="#about">Why Pruvia</a><a href="#faq">FAQ</a></nav>
         <div className="t-footer-contact"><h2>Get in touch</h2><a href="mailto:hello@drivepruvia.com">hello@drivepruvia.com <ArrowUpRight size={16}/></a><a href="/book/website">Book a call <ArrowUpRight size={16}/></a></div>
       </div>
-      <div className="t-footer-bottom"><span>© {new Date().getFullYear()} Pruvia. All rights reserved.</span></div>
+      <div className="t-footer-bottom"><span>© {new Date().getFullYear()} Pruvia Inc. All rights reserved.</span><a href="/privacy">Privacy</a></div>
     </footer>
     <dialog ref={video} className="t-dialog" onCancel={closeVideo} onClick={event => { if (event.target === event.currentTarget)
         closeVideo(); }} aria-label="Meet Pruvia introduction video"><button className="t-dialog-close" aria-label="Close video" onClick={closeVideo}><X /></button>{videoOpen && <iframe title="DrivePruvia introduction video" src="https://www.youtube.com/embed/qCk4ew6lGMQ?rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen/>}</dialog>

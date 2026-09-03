@@ -283,6 +283,20 @@
 .t-utility-footer{width:100%;border-top:1px solid var(--t-line);padding-block:24px;color:var(--t-muted);font-size:var(--type-label)}.t-not-found h1{color:var(--t-blue)}
 @media(max-width:767px){.t-utility-main{padding-block:55px}.taste .t-utility-card h1{font-size:clamp(2.7rem,13vw,4.4rem)}.t-utility-card .t-downloads,.t-utility-actions{display:grid}.t-secondary-link{width:100%}}
 
+/* Privacy policy uses the same type, spacing, borders, and footer system as the landing page. */
+.t-policy-page{min-height:100dvh}.t-policy-main{padding-top:clamp(65px,9vw,130px);padding-bottom:clamp(80px,11vw,160px)}
+.t-policy-heading{max-width:1050px;padding-bottom:clamp(55px,7vw,100px);border-bottom:1px solid var(--t-line)}
+.taste .t-policy-heading h1{margin:20px 0 24px;font-size:clamp(3.25rem,7vw,6.75rem);line-height:1.02;letter-spacing:-.065em;font-weight:550}
+.t-policy-date{font-size:var(--type-small);color:var(--t-muted)}.t-policy-lead{max-width:790px;margin-top:34px!important;font-size:var(--type-body);line-height:1.65;color:var(--t-muted)}
+.t-policy-body{max-width:900px;margin-left:auto}.t-policy-body section{position:relative;padding:clamp(48px,6vw,82px) 0;border-bottom:1px solid var(--t-line)}
+.t-policy-body section:first-child{padding-top:clamp(55px,7vw,95px)}.taste .t-policy-body h2{font-size:clamp(2rem,3.6vw,3.25rem);margin:0 0 25px;letter-spacing:-.045em}
+.t-policy-body p{font-size:var(--type-body);line-height:1.7;color:var(--t-muted);text-wrap:pretty}.t-policy-body p+p{margin-top:20px}
+.t-policy-number{position:absolute;right:calc(100% + 55px);top:clamp(55px,7vw,89px);font-size:var(--type-label)!important;color:var(--t-blue)!important;font-weight:700;letter-spacing:.1em}
+.t-policy-body section:first-child .t-policy-number{display:none}.t-policy-contact{display:inline-flex;align-items:center;gap:14px;margin-top:28px;color:var(--t-blue);font-size:var(--type-body);font-weight:700}
+.t-policy-page .t-footer-bottom>a{color:var(--t-muted)}.t-policy-page .t-footer-bottom>a:hover{color:var(--t-blue)}
+@media(max-width:1100px){.t-policy-body{margin-left:70px}.t-policy-number{right:calc(100% + 28px)}}
+@media(max-width:767px){.t-policy-main{padding-top:50px}.taste .t-policy-heading h1{font-size:clamp(2.75rem,13vw,4.5rem)}.t-policy-lead{margin-top:26px!important}.t-policy-body{margin-left:0}.t-policy-number{position:static;margin-bottom:12px!important}.t-policy-body section{padding-block:48px}.t-policy-body section:first-child{padding-top:55px}}
+
 /* Final stage gets reading time with both copy and phone visible. */
 .t-walk-stage{display:block}
 @media(min-width:1000px) and (min-height:700px) and (pointer:fine){
